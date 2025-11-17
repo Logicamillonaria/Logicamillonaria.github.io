@@ -92,7 +92,7 @@ function init(){
   // Estado inicial
   state.order = shuffle(QUESTIONS.map((_,i)=>i));
 
-  // Menús/overlays: mostrar intro, ocultar menú
+  // Overlays: mostrar intro, ocultar menú
   hideMenu();
   showIntro();
 
@@ -192,7 +192,7 @@ function selectAnswer(el, chosen, correct){
     const nodes = [...answersEl.querySelectorAll('.answer')];
     if (nodes[correct]) nodes[correct].classList.add('correct');
     try { sWrong.currentTime = 0; sWrong.play().catch(()=>{});} catch(_) {}
-    setTimeout(()=> endGame(false), 1300);
+    setTimeout(()=> endGame(false), 1200);
   }
 }
 
@@ -224,10 +224,10 @@ function endGame(win){
 }
 function showMenu(prize){
   menuPrize.textContent = prize;
-  menu.classList.add('show');      // ← visible con .show
+  menu.classList.add('show');      // ← mostrar con clase .show
 }
 function hideMenu(){
-  menu.classList.remove('show');   // ← oculto sin depender de hidden
+  menu.classList.remove('show');   // ← ocultar seguro
 }
 btnRetry.addEventListener('click', ()=>{
   hideMenu();
@@ -281,8 +281,9 @@ function useAudience(){
 
 // --------- Intro ----------
 function showIntro(){
-  introOverlay.classList.add('show'); // visible
-  state.canRunTimer = false;          // no timer aún
+  // Muestra la intro y evita que corra el timer hasta cerrar
+  introOverlay.classList.add('show');
+  state.canRunTimer = false;
   try { introVideo.currentTime = 0; introVideo.play().catch(()=>{});} catch(_) {}
 }
 function closeIntro(){
