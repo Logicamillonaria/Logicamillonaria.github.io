@@ -51,7 +51,7 @@
         <!-- Respuestas -->
         <div class="answers" id="answers" role="group" aria-label="Opciones de respuesta"></div>
 
-        <!-- Ayudas (comodines) -->
+        <!-- Comodines -->
         <div class="lifelines" aria-label="Comodines">
           <button class="lifeline" id="lf-5050" type="button" aria-label="50/50"><span>50/50</span></button>
           <button class="lifeline" id="lf-call" type="button" aria-label="Llamada"><span>📞 Llamada</span></button>
@@ -63,10 +63,11 @@
     </main>
   </div>
 
-  <!-- Overlay de introducción con video -->
+  <!-- Overlay de introducción con video (se muestra al inicio) -->
   <div class="intro-overlay" id="introOverlay">
     <div class="intro-shell">
       <video id="introVideo" preload="auto" playsinline controls poster="">
+        <!-- Reemplaza por tu video -->
         <source src="./assets/intro.mp4" type="video/mp4" />
         Tu navegador no soporta video HTML5.
       </video>
@@ -77,8 +78,8 @@
     </div>
   </div>
 
-  <!-- Menú estilizado al perder / finalizar -->
-  <div class="menu-overlay" id="gameMenu" hidden>
+  <!-- Menú estilizado al perder / finalizar (oculto por defecto) -->
+  <div class="menu-overlay" id="gameMenu">
     <div class="menu-card" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
       <h3 id="menuTitle">Fin de la partida</h3>
       <p id="menuSubtitle">Tu premio acumulado: <strong id="menuPrize">$0</strong></p>
@@ -89,7 +90,7 @@
     </div>
   </div>
 
-  <!-- Audios -->
+  <!-- Audios (coloca tus archivos en assets/sfx/) -->
   <audio id="sTick" src="./assets/sfx/tick.mp3" preload="auto"></audio>
   <audio id="sSusp" src="./assets/sfx/suspense.mp3" preload="auto" loop></audio>
   <audio id="sSelect" src="./assets/sfx/select.mp3" preload="auto"></audio>
