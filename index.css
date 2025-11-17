@@ -89,7 +89,7 @@ body::before {
 .intro-overlay video { width: min(1000px, 80vw); max-height: 70vh; border-radius: 12px; box-shadow: 0 14px 50px rgba(2,6,23,0.7); background:#000; }
 .intro-controls { display:flex; gap:12px; }
 
-/* MENÚ (cuando pierdes) — oculto por defecto; se muestra con .show */
+/* MENÚ (cuando pierdes/ganas) — oculto por defecto; se muestra con .show) */
 .menu-overlay { position: fixed; inset:0; display:none; align-items:center; justify-content:center; background: rgba(4,8,18,0.78); z-index:9998; }
 .menu-overlay.show { display:flex; }
 .menu-card { background: linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px; padding: 20px; width: min(420px, 90vw); box-shadow: 0 20px 60px rgba(0,0,0,0.5); text-align:center; backdrop-filter: blur(8px); }
