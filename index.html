@@ -9,13 +9,15 @@
   <meta property="og:description" content="Versión moderna del clásico formato con ayudas, temporizador y escalera de premios." />
   <meta property="og:type" content="website" />
 
-  <!-- Favicon / Iconos -->
-  <!-- Tu ícono 192x192 (recomendado para PWA y pestañas modernas) -->
+  <!-- FAVICONS -->
+  <!-- Ícono principal 192×192 (tu requerimiento) -->
   <link rel="icon" type="image/png" sizes="192x192" href="./assets/favicon.png" />
-  <!-- Opcionales (por si luego agregas más tamaños) -->
-  <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon.png" />
-  <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon.png" />
+  <!-- Respaldo 32×32 (recomendado) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon-32.png" />
+  <!-- Apple touch (opcional, usa el mismo 192 si no tienes otro) -->
   <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png" />
+  <!-- manifest opcional si luego quieres PWA -->
+  <!-- <link rel="manifest" href="./manifest.webmanifest"> -->
 
   <!-- Fuentes (Inter + Merriweather) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
@@ -99,12 +101,12 @@
   </div>
 
   <!-- Audios (coloca tus archivos en assets/sfx/) -->
-  <audio id="sTick"    src="./assets/sfx/tick.mp3"     preload="auto"></audio>
-  <audio id="sSusp"    src="./assets/sfx/suspense.mp3" preload="auto" loop></audio>
-  <audio id="sSelect"  src="./assets/sfx/select.mp3"   preload="auto"></audio>
-  <audio id="sCorrect" src="./assets/sfx/correct.mp3"  preload="auto"></audio>
-  <audio id="sWrong"   src="./assets/sfx/wrong.mp3"    preload="auto"></audio>
-  <audio id="sAudience"src="./assets/sfx/audience.mp3" preload="auto"></audio>
+  <audio id="sTick"     src="./assets/sfx/tick.mp3"     preload="auto"></audio>
+  <audio id="sSusp"     src="./assets/sfx/suspense.mp3" preload="auto" loop></audio>
+  <audio id="sSelect"   src="./assets/sfx/select.mp3"   preload="auto"></audio>
+  <audio id="sCorrect"  src="./assets/sfx/correct.mp3"  preload="auto"></audio>
+  <audio id="sWrong"    src="./assets/sfx/wrong.mp3"    preload="auto"></audio>
+  <audio id="sAudience" src="./assets/sfx/audience.mp3" preload="auto"></audio>
 
   <div id="confetti" aria-hidden="true"></div>
 
