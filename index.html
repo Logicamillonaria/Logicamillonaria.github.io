@@ -4,13 +4,20 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lógica millonaria</title>
-
   <meta name="description" content="Lógica millonaria: juego web tipo concurso con ayudas, temporizador y escalera de premios." />
   <meta property="og:title" content="Lógica millonaria" />
   <meta property="og:description" content="Versión moderna del clásico formato con ayudas, temporizador y escalera de premios." />
   <meta property="og:type" content="website" />
 
-  <!-- Fuentes -->
+  <!-- Favicon / Iconos -->
+  <!-- Tu ícono 192x192 (recomendado para PWA y pestañas modernas) -->
+  <link rel="icon" type="image/png" sizes="192x192" href="./assets/favicon.png" />
+  <!-- Opcionales (por si luego agregas más tamaños) -->
+  <link rel="icon" type="image/png" sizes="32x32" href="./assets/favicon.png" />
+  <link rel="icon" type="image/png" sizes="16x16" href="./assets/favicon.png" />
+  <link rel="apple-touch-icon" sizes="180x180" href="./assets/favicon.png" />
+
+  <!-- Fuentes (Inter + Merriweather) -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet" />
@@ -65,7 +72,7 @@
     </main>
   </div>
 
-  <!-- Overlay de introducción con video (se muestra al inicio con .show) -->
+  <!-- Overlay de introducción con video (se muestra al inicio) -->
   <div class="intro-overlay" id="introOverlay">
     <div class="intro-shell">
       <video id="introVideo" preload="auto" playsinline controls poster="">
@@ -79,7 +86,7 @@
     </div>
   </div>
 
-  <!-- Menú estilizado al perder / finalizar (oculto por defecto; visible con .show) -->
+  <!-- Menú estilizado al perder / finalizar (oculto por defecto; JS lo muestra con .show) -->
   <div class="menu-overlay" id="gameMenu">
     <div class="menu-card" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
       <h3 id="menuTitle">Fin de la partida</h3>
@@ -99,7 +106,6 @@
   <audio id="sWrong"   src="./assets/sfx/wrong.mp3"    preload="auto"></audio>
   <audio id="sAudience"src="./assets/sfx/audience.mp3" preload="auto"></audio>
 
-  <!-- Confeti (DOM) -->
   <div id="confetti" aria-hidden="true"></div>
 
   <!-- Lógica -->
