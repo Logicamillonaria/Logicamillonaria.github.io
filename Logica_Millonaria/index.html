@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Lógica millonaria</title>
+  <meta name="description" content="Lógica millonaria: juego web tipo concurso con ayudas, temporizador y escalera de premios." />
+  <meta property="og:title" content="Lógica millonaria" />
+  <meta property="og:description" content="Versión moderna del clásico formato con ayudas, temporizador y escalera de premios." />
+  <meta property="og:type" content="website" />
+
+  <!-- Fuentes -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="./index.css" />
+</head>
+<body>
+  <!-- Canvas de chispas de fondo (animación) -->
+  <canvas id="bg-sparks" aria-hidden="true"></canvas>
+
+  <div id="root" class="app">
+    <!-- Escalera -->
+    <aside id="ladder" class="ladder" aria-label="Escalera de premios"></aside>
+
+    <!-- Escenario principal -->
+    <main class="stage" role="main">
+      <h1 class="brand" aria-label="Título del juego">Lógica millonaria</h1>
+
+      <div class="topbar" aria-label="Barra superior">
+        <div class="guarantee">Asegurado: <span id="safeAmt">$0</span></div>
+        <div class="prize" id="currentPrize">$0</div>
+      </div>
+
+      <section class="question-card" aria-labelledby="questionTitle">
+        <!-- Temporizador circular -->
+        <div class="timer-wrap" aria-live="polite" aria-label="Temporizador">
+          <svg class="timer-svg" viewBox="0 0 120 120">
+            <circle class="timer-bg" cx="60" cy="60" r="54"></circle>
+            <circle class="timer-progress" id="timerProgress" cx="60" cy="60" r="54" stroke-dasharray="339.292" stroke-dashoffset="0"></circle>
+          </svg>
+          <div class="timer-number" id="timerNumber">35</div>
+        </div>
+
+        <!-- Pregunta -->
+        <div class="question-wrap">
+          <h2 id="questionTitle">Cargando pregunta...</h2>
+        </div>
+
+        <!-- Respuestas -->
+        <div class="answers" id="answers" role="group" aria-label="Opciones de respuesta"></div>
+
+        <!-- Ayudas (comodines) -->
+        <div class="lifelines" aria-label="Comodines">
+          <button class="lifeline" id="lf-5050" type="button" aria-label="50/50"><span>50/50</span></button>
+          <button class="lifeline" id="lf-call" type="button" aria-label="Llamada"><span>📞 Llamada</span></button>
+          <button class="lifeline" id="lf-aud" type="button" aria-label="Público"><span>👥 Público</span></button>
+          <button class="lifeline" id="skipBtn" type="button" aria-label="Omitir intro"><span>⏭ Omitir intro</span></button>
+          <button class="lifeline" id="soundBtn" type="button" aria-label="Activar sonido"><span>🔊 Sonido</span></button>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Overlay de introducción con video -->
+  <div class="intro-overlay" id="introOverlay">
+    <div class="intro-shell">
+      <video id="introVideo" preload="auto" playsinline controls poster="">
+        <source src="./assets/intro.mp4" type="video/mp4" />
+        Tu navegador no soporta video HTML5.
+      </video>
+      <div class="intro-controls">
+        <button class="btn" id="skipBtn2" type="button">⏭ Omitir</button>
+        <button class="btn accent" id="soundBtn2" type="button">🔊 Activar sonido</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Menú estilizado al perder / finalizar -->
+  <div class="menu-overlay" id="gameMenu" hidden>
+    <div class="menu-card" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
+      <h3 id="menuTitle">Fin de la partida</h3>
+      <p id="menuSubtitle">Tu premio acumulado: <strong id="menuPrize">$0</strong></p>
+      <div class="menu-actions">
+        <button class="btn accent" id="btnRetry" type="button">🔁 Reintentar</button>
+        <button class="btn" id="btnExit" type="button">🏁 Salir</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Audios -->
+  <audio id="sTick" src="./assets/sfx/tick.mp3" preload="auto"></audio>
+  <audio id="sSusp" src="./assets/sfx/suspense.mp3" preload="auto" loop></audio>
+  <audio id="sSelect" src="./assets/sfx/select.mp3" preload="auto"></audio>
+  <audio id="sCorrect" src="./assets/sfx/correct.mp3" preload="auto"></audio>
+  <audio id="sWrong" src="./assets/sfx/wrong.mp3" preload="auto"></audio>
+  <audio id="sAudience" src="./assets/sfx/audience.mp3" preload="auto"></audio>
+
+  <div id="confetti" aria-hidden="true"></div>
+
+  <script src="./index.js" defer></script>
+</body>
+</html>
