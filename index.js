@@ -89,13 +89,9 @@ function shuffle(a){ const arr=[...a]; for(let i=arr.length-1;i>0;i--){ const j=
 
 // --------- Ciclo de vida ----------
 function init(){
-  // Estado inicial
   state.order = shuffle(QUESTIONS.map((_,i)=>i));
-
-  // Overlays: mostrar intro, ocultar menú
   hideMenu();
   showIntro();
-
   attachLifelines();
   bindIntroControls();
 }
@@ -281,9 +277,8 @@ function useAudience(){
 
 // --------- Intro ----------
 function showIntro(){
-  // Muestra la intro y evita que corra el timer hasta cerrar
-  introOverlay.classList.add('show');
-  state.canRunTimer = false;
+  introOverlay.classList.add('show');   // visible
+  state.canRunTimer = false;            // evita que arranque el timer
   try { introVideo.currentTime = 0; introVideo.play().catch(()=>{});} catch(_) {}
 }
 function closeIntro(){
