@@ -92,7 +92,7 @@ function init(){
   // Estado inicial
   state.order = shuffle(QUESTIONS.map((_,i)=>i));
 
-  // Menús/overlays ocultos por defecto (solo intro visible)
+  // Menús/overlays: mostrar intro, ocultar menú
   hideMenu();
   showIntro();
 
@@ -224,10 +224,10 @@ function endGame(win){
 }
 function showMenu(prize){
   menuPrize.textContent = prize;
-  menu.classList.add('show');      // ← ahora uso clase .show en vez de depender de hidden
+  menu.classList.add('show');      // ← visible con .show
 }
 function hideMenu(){
-  menu.classList.remove('show');   // oculto seguro
+  menu.classList.remove('show');   // ← oculto sin depender de hidden
 }
 btnRetry.addEventListener('click', ()=>{
   hideMenu();
@@ -281,9 +281,8 @@ function useAudience(){
 
 // --------- Intro ----------
 function showIntro(){
-  // Muestra la intro y evita que corra el timer hasta cerrar
-  introOverlay.classList.add('show');
-  state.canRunTimer = false;
+  introOverlay.classList.add('show'); // visible
+  state.canRunTimer = false;          // no timer aún
   try { introVideo.currentTime = 0; introVideo.play().catch(()=>{});} catch(_) {}
 }
 function closeIntro(){
