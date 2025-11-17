@@ -4,6 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Lógica millonaria</title>
+
   <meta name="description" content="Lógica millonaria: juego web tipo concurso con ayudas, temporizador y escalera de premios." />
   <meta property="og:title" content="Lógica millonaria" />
   <meta property="og:description" content="Versión moderna del clásico formato con ayudas, temporizador y escalera de premios." />
@@ -14,6 +15,7 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&family=Merriweather:wght@700&display=swap" rel="stylesheet" />
 
+  <!-- Estilos -->
   <link rel="stylesheet" href="./index.css" />
 </head>
 <body>
@@ -63,11 +65,10 @@
     </main>
   </div>
 
-  <!-- Overlay de introducción con video (se muestra al inicio) -->
+  <!-- Overlay de introducción con video (se muestra al inicio con .show) -->
   <div class="intro-overlay" id="introOverlay">
     <div class="intro-shell">
       <video id="introVideo" preload="auto" playsinline controls poster="">
-        <!-- Reemplaza por tu video -->
         <source src="./assets/intro.mp4" type="video/mp4" />
         Tu navegador no soporta video HTML5.
       </video>
@@ -78,7 +79,7 @@
     </div>
   </div>
 
-  <!-- Menú estilizado al perder / finalizar (oculto por defecto) -->
+  <!-- Menú estilizado al perder / finalizar (oculto por defecto; visible con .show) -->
   <div class="menu-overlay" id="gameMenu">
     <div class="menu-card" role="dialog" aria-modal="true" aria-labelledby="menuTitle">
       <h3 id="menuTitle">Fin de la partida</h3>
@@ -91,15 +92,17 @@
   </div>
 
   <!-- Audios (coloca tus archivos en assets/sfx/) -->
-  <audio id="sTick" src="./assets/sfx/tick.mp3" preload="auto"></audio>
-  <audio id="sSusp" src="./assets/sfx/suspense.mp3" preload="auto" loop></audio>
-  <audio id="sSelect" src="./assets/sfx/select.mp3" preload="auto"></audio>
-  <audio id="sCorrect" src="./assets/sfx/correct.mp3" preload="auto"></audio>
-  <audio id="sWrong" src="./assets/sfx/wrong.mp3" preload="auto"></audio>
-  <audio id="sAudience" src="./assets/sfx/audience.mp3" preload="auto"></audio>
+  <audio id="sTick"    src="./assets/sfx/tick.mp3"     preload="auto"></audio>
+  <audio id="sSusp"    src="./assets/sfx/suspense.mp3" preload="auto" loop></audio>
+  <audio id="sSelect"  src="./assets/sfx/select.mp3"   preload="auto"></audio>
+  <audio id="sCorrect" src="./assets/sfx/correct.mp3"  preload="auto"></audio>
+  <audio id="sWrong"   src="./assets/sfx/wrong.mp3"    preload="auto"></audio>
+  <audio id="sAudience"src="./assets/sfx/audience.mp3" preload="auto"></audio>
 
+  <!-- Confeti (DOM) -->
   <div id="confetti" aria-hidden="true"></div>
 
+  <!-- Lógica -->
   <script src="./index.js" defer></script>
 </body>
 </html>
