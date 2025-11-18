@@ -1,4 +1,4 @@
-// Lógica millonaria — versión con mejoras solicitadas
+// Lógica millonaria — versión con intro/sonidos robustecidos
 
 // ==================== Datos ====================
 const QUESTIONS = [
@@ -17,7 +17,7 @@ const QUESTIONS = [
   { q: '¿Qué organelo es conocido como "la central energética de la célula"?', a: ['Núcleo','Mitocondria','Ribosoma','Retículo endoplásmico'], correct: 1 },
   { q: '¿Qué instrumento se utiliza para medir la presión atmosférica?', a: ['Termómetro','Barómetro','Sismógrafo','Higrómetro'], correct: 1 },
   { q: '¿Quién compuso la Novena Sinfonía, también conocida como "Coral"?', a: ['Wolfgang Amadeus Mozart','Ludwig van Beethoven','Johann Sebastian Bach','Frédéric Chopin'], correct: 1 },
-]; // ← 15 preguntas del DOCX (índices base‑0)
+]; // 15 preguntas
 
 const PRIZES = ['100','200','300','500','1.000','2.000','4.000','8.000','16.000','32.000','64.000','125.000','250.000','500.000','1.000.000'];
 
@@ -26,7 +26,7 @@ let state = {
   order: [],
   idx: 0,
   running: false,
-  canRunTimer: false, // el timer arranca solo después de la intro
+  canRunTimer: false, // timer arranca tras la intro
   timerMax: 35,
   timer: 35,
   usedLifelines: { '50': false, 'call': false, 'aud': false },
@@ -50,13 +50,21 @@ const menuPrize = must('menuPrize');
 const btnRetry = must('btnRetry');
 const btnExit = must('btnExit');
 
-// Audios (pueden estar sin src)
+// Audios (asegúrate de subir los archivos a assets/audio/)
 const sTick = must('sTick');
-const sSuspense = must('sSusp'); // id="sSusp"
+const sSuspense = must('sSusp'); // ambiente del timer
 const sSelect = must('sSelect');
 const sCorrect = must('sCorrect');
 const sWrong = must('sWrong');
 const sAudience = must('sAudience');
+
+// Ajustes de audio
+[sTick, sSuspense, sSelect, sCorrect, sWrong, sAudience].forEach(a => {
+  if (!a) return;
+  a.volume = 1.0;              // ajusta si quieres
+  a.preload = 'metadata';       // ya viene en HTML
+});
+sSuspense.loop = true;          // bucle ambiente de suspenso
 
 // Intro/controles
 const introOverlay = must('introOverlay');
@@ -115,7 +123,10 @@ function startTimer(){
   state.timer = state.timerMax;
   state.running = true;
   updateTimerUI();
+
+  // intenta reproducir el ambiente
   try { sSuspense.currentTime = 0; sSuspense.play().catch(()=>{}); } catch(_) {}
+
   const tick = () => {
     const elapsed = Math.floor((Date.now() - start) / 1000);
     const left = state.timerMax - elapsed;
@@ -148,7 +159,6 @@ function loadQuestionAt(pos){
   q.a.forEach((txt,i)=>{
     const btn = document.createElement('button');
     btn.className = 'answer'; btn.type='button'; btn.dataset.index = String(i);
-    // crear nodos en lugar de innerHTML
     const letter = document.createElement('span'); letter.className='letter'; letter.textContent = 'ABCD'[i];
     const label = document.createElement('span'); label.textContent = txt;
     btn.append(letter, label);
@@ -167,8 +177,7 @@ function selectAnswer(el, chosen, correct){
   lockAnswers(); stopTimer();
   try { sSelect.currentTime = 0; sSelect.play().catch(()=>{});} catch(_) {}
   if (chosen === correct){
-    // sumar premio del nivel actual
-    const prizeVal = Number(PRIZES[state.idx].replace(/\./g,''));
+    const prizeVal = Number(PRIZES[state.idx].replace(/\./g,'')); // '1.000' -> 1000
     state.bank += prizeVal;
     el.classList.add('correct');
     try { sCorrect.currentTime = 0; sCorrect.play().catch(()=>{});} catch(_) {}
@@ -215,10 +224,11 @@ function attachLifelines(){
   const bAud = must('lf-aud');
 
   b5050.onclick = ()=>{ if(state.usedLifelines['50']) return; state.usedLifelines['50']=true; withLock(()=>{ use5050(); b5050.classList.add('used'); }); };
-  bCall.onclick = ()=>{ if(state.usedLifelines['call']) return; state.usedLifelines['call']=true; withLock(()=>{ useCall(); bCall.classList.add('used'); }); };
-  bAud.onclick = ()=>{ if(state.usedLifelines['aud']) return; state.usedLifelines['aud']=true; withLock(()=>{ useAudience(); bAud.classList.add('used'); }); };
+  bCall.onclick  = ()=>{ if(state.usedLifelines['call']) return; state.usedLifelines['call']=true; withLock(()=>{ useCall(); bCall.classList.add('used'); }); };
+  bAud.onclick   = ()=>{ if(state.usedLifelines['aud']) return;  state.usedLifelines['aud']=true;  withLock(()=>{ useAudience(); bAud.classList.add('used'); }); };
 }
 function withLock(fn, delay=300){ lockAnswers(); try { fn(); } finally { setTimeout(unlockAnswers, delay); } }
+
 function use5050(){
   const qIdx = state.order[state.idx % state.order.length]; const correct = QUESTIONS[qIdx].correct;
   const nodes = [...answersEl.querySelectorAll('.answer')];
@@ -249,23 +259,50 @@ function useAudience(){
   });
 }
 
-// ==================== Intro ====================
-function showIntro(){
+// ==================== Intro (robustecida) ====================
+function showIntro() {
   introOverlay.classList.add('show');
   state.canRunTimer = false;
-  try { introVideo.currentTime = 0; introVideo.play().catch(()=>{});} catch(_) {}
+
+  try {
+    introVideo.currentTime = 0;
+    const playPromise = introVideo.play(); // autoplay con muted
+    if (playPromise && typeof playPromise.then === 'function') {
+      playPromise.then(()=>{}).catch(()=>{/*esperamos gesto del usuario*/});
+    }
+  } catch(_) {}
 }
-function closeIntro(){
+function closeIntro() {
+  try { introVideo.pause(); } catch(_) {}
   introOverlay.classList.remove('show');
   state.canRunTimer = true;
   startGame();
 }
-function bindIntroControls(){
-  const tryPlay = ()=>{ try { introVideo.muted = false; introVideo.play().catch(()=>{});} catch(_){} };
-  if (soundBtn2) soundBtn2.onclick = tryPlay; // solo dentro del overlay
-  const doSkip = ()=>{ try { introVideo.pause(); } catch(_){}; try { sSuspense.pause(); } catch(_){}; closeIntro(); };
+function bindIntroControls() {
+  const tryPlayWithSound = () => {
+    try {
+      introVideo.muted = false;
+      const p = introVideo.play();
+      if (p && typeof p.then === 'function') {
+        p.catch(()=>{ introVideo.muted = true; /* si falla, queda silenciado */ });
+      }
+      unlockAudio(); // ← asegura que los audios del juego queden habilitados
+    } catch(_) {}
+  };
+  if (soundBtn2) soundBtn2.onclick = tryPlayWithSound;
+
+  const doSkip = () => {
+    try { introVideo.pause(); } catch(_) {}
+    try { sSuspense.pause(); } catch(_) {}
+    closeIntro();
+  };
   if (skipBtn2) skipBtn2.onclick = doSkip;
-  introVideo.addEventListener('ended', ()=> closeIntro());
+
+  introVideo.addEventListener('ended', () => closeIntro());
+  // Diagnóstico opcional (consola)
+  introVideo.addEventListener('error', () => console.warn('Error al cargar/reproducir el video de intro'));
+  introVideo.addEventListener('canplay', () => console.log('Intro: canplay'));
+  introVideo.addEventListener('loadeddata', () => console.log('Intro: loadeddata'));
 }
 
 // ==================== Anti-trampas ====================
@@ -279,11 +316,8 @@ function showWarn(){
   btn.onclick = ()=>{ warn.classList.remove('show'); startTimer(); };
 }
 function endByCheat(){ stopTimer(); showMenu(fmt(state.bank)); }
-// cambio de pestaña/ventana
 document.addEventListener('visibilitychange', ()=>{ if (document.hidden) onSuspiciousActivity(); });
-// pérdida de foco
 window.addEventListener('blur', ()=> onSuspiciousActivity());
-// señales básicas de DevTools
 document.addEventListener('keydown', (e)=>{
   if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
     e.preventDefault(); onSuspiciousActivity();
@@ -313,6 +347,22 @@ function triggerConfetti(){
   }
 }
 
+// ==================== Desbloqueo de audio global ====================
+let audioUnlocked = false;
+function unlockAudio(){
+  if (audioUnlocked) return;
+  audioUnlocked = true;
+  // Intenta reproducir/pausar una vez para “desbloquear” canal de audio
+  [sTick, sSuspense, sSelect, sCorrect, sWrong, sAudience].forEach(a=>{
+    try { const p=a.play(); if (p && p.then) p.then(()=>a.pause()).catch(()=>{}); } catch(_) {}
+  });
+  window.removeEventListener('pointerdown', unlockAudio);
+  window.removeEventListener('keydown', unlockAudio);
+}
+// Primer gesto en cualquier parte desbloquea audio
+window.addEventListener('pointerdown', unlockAudio, { once:false });
+window.addEventListener('keydown', unlockAudio, { once:false });
+
 // ==================== Ciclo de vida ====================
 function startGame(){
   state.order = shuffle(QUESTIONS.map((_,i)=>i));
@@ -327,4 +377,5 @@ function startGame(){
 function init(){ hideMenu(); showIntro(); attachLifelines(); bindIntroControls(); }
 function showMenu(prize){ menuPrize.textContent = prize; menu.classList.add('show'); }
 function hideMenu(){ menu.classList.remove('show'); }
+
 init();
