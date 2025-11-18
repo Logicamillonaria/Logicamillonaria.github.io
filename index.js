@@ -1,72 +1,78 @@
-// Lógica millonaria — lógica principal
+// Lógica millonaria — versión con mejoras solicitadas
 
+// ==================== Datos ====================
 const QUESTIONS = [
-  { q: '¿En qué continente se encuentra el desierto del Sahara?', a:['Asia','África','Europa','América'], correct:1 },
-  { q: '¿Cuál es la capital de Francia?', a:['Berlín','Madrid','París','Lisboa'], correct:2 },
-  { q: '2 + 3 × 4 = ?', a:['20','14','16','12'], correct:1 },
-  { q: '¿Qué elemento tiene el símbolo O?', a:['Oro','Oxígeno','Plata','Cobre'], correct:1 },
-  { q: '¿Cuánto es 5 × 5?', a:['20','15','25','30'], correct:2 }
-];
+  { q: '¿Qué escritor es conocido por crear "Cien años de soledad"?', a: ['Pablo Neruda','Gabriel García Márquez','Julio Cortázar','Jorge Luis Borges'], correct: 1 },
+  { q: '¿Cuál es el río más largo del mundo?', a: ['Nilo','Amazonas','Yangtsé','Misisipi'], correct: 1 },
+  { q: '¿En qué año el hombre llegó a la Luna por primera vez?', a: ['1965','1969','1972','1958'], correct: 1 },
+  { q: '¿Quién pintó "La noche estrellada"?', a: ['Pablo Picasso','Vincent van Gogh','Claude Monet','Salvador Dalí'], correct: 1 },
+  { q: '¿Cuál es el metal más abundante en la corteza terrestre?', a: ['Hierro','Aluminio','Cobre','Oro'], correct: 1 },
+  { q: '¿Qué elemento químico tiene el símbolo "Au"?', a: ['Plata','Argón','Oro','Arsénico'], correct: 2 },
+  { q: '¿Qué famoso físico formuló la Teoría de la Relatividad?', a: ['Isaac Newton','Stephen Hawking','Albert Einstein','Niels Bohr'], correct: 2 },
+  { q: '¿Cuál es el país más grande del mundo por superficie?', a: ['China','Canadá','Estados Unidos','Rusia'], correct: 3 },
+  { q: '¿En qué continente se encuentra Egipto?', a: ['Asia','África','Europa','América'], correct: 1 },
+  { q: '¿Qué planeta es conocido como "el planeta rojo"?', a: ['Venus','Júpiter','Marte','Saturno'], correct: 2 },
+  { q: '¿Quién escribió la tragedia "Romeo y Julieta"?', a: ['William Shakespeare','Charles Dickens','Jane Austen','Oscar Wilde'], correct: 0 },
+  { q: '¿Cuál es el océano más grande del mundo?', a: ['Océano Atlántico','Océano Índico','Océano Ártico','Océano Pacífico'], correct: 3 },
+  { q: '¿Qué organelo es conocido como "la central energética de la célula"?', a: ['Núcleo','Mitocondria','Ribosoma','Retículo endoplásmico'], correct: 1 },
+  { q: '¿Qué instrumento se utiliza para medir la presión atmosférica?', a: ['Termómetro','Barómetro','Sismógrafo','Higrómetro'], correct: 1 },
+  { q: '¿Quién compuso la Novena Sinfonía, también conocida como "Coral"?', a: ['Wolfgang Amadeus Mozart','Ludwig van Beethoven','Johann Sebastian Bach','Frédéric Chopin'], correct: 1 },
+]; // ← 15 preguntas del DOCX (índices base‑0)
 
 const PRIZES = ['100','200','300','500','1.000','2.000','4.000','8.000','16.000','32.000','64.000','125.000','250.000','500.000','1.000.000'];
-const SAFE_LEVELS = new Set([4, 9]); // 1.000 y 32.000
 
+// ==================== Estado ====================
 let state = {
   order: [],
   idx: 0,
   running: false,
-  canRunTimer: false, // ← el timer arranca solo después de la intro
+  canRunTimer: false, // el timer arranca solo después de la intro
   timerMax: 35,
   timer: 35,
-  usedLifelines: { '50': false, 'call': false, 'aud': false }
+  usedLifelines: { '50': false, 'call': false, 'aud': false },
+  bank: 0, // acumulado
 };
 
-// DOM
-const qTitle = document.getElementById('questionTitle');
-const answersEl = document.getElementById('answers');
-const timerNum = document.getElementById('timerNumber');
-const prog = document.getElementById('timerProgress');
-const ladderEl = document.getElementById('ladder');
-const currentPrizeEl = document.getElementById('currentPrize');
-const safeAmt = document.getElementById('safeAmt');
-const menu = document.getElementById('gameMenu');
-const menuPrize = document.getElementById('menuPrize');
-const btnRetry = document.getElementById('btnRetry');
-const btnExit = document.getElementById('btnExit');
+// ==================== Utilidades ====================
+function must(id){ const el = document.getElementById(id); if(!el) throw new Error(`Falta #${id} en el DOM`); return el; }
+function fmt(n){ return '$' + n.toString().replace(/\B(?=(\d{3})+(?!\d))/g, '.'); }
+function shuffle(a){ const arr=[...a]; for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
 
-// Audios
-const sTick = document.getElementById('sTick');
-const sSuspense = document.getElementById('sSusp');
-const sSelect = document.getElementById('sSelect');
-const sCorrect = document.getElementById('sCorrect');
-const sWrong = document.getElementById('sWrong');
-const sAudience = document.getElementById('sAudience');
+// ==================== DOM ====================
+const qTitle = must('questionTitle');
+const answersEl = must('answers');
+const timerNum = must('timerNumber');
+const prog = must('timerProgress');
+const ladderEl = must('ladder');
+const currentPrizeEl = must('currentPrize');
+const menu = must('gameMenu');
+const menuPrize = must('menuPrize');
+const btnRetry = must('btnRetry');
+const btnExit = must('btnExit');
+
+// Audios (pueden estar sin src)
+const sTick = must('sTick');
+const sSuspense = must('sSusp'); // id="sSusp"
+const sSelect = must('sSelect');
+const sCorrect = must('sCorrect');
+const sWrong = must('sWrong');
+const sAudience = must('sAudience');
 
 // Intro/controles
-const introOverlay = document.getElementById('introOverlay');
-const introVideo = document.getElementById('introVideo');
-const soundBtn = document.getElementById('soundBtn');
-const skipBtn = document.getElementById('skipBtn');
-const soundBtn2 = document.getElementById('soundBtn2');
-const skipBtn2 = document.getElementById('skipBtn2');
+const introOverlay = must('introOverlay');
+const introVideo = must('introVideo');
+const soundBtn2 = must('soundBtn2');
+const skipBtn2 = must('skipBtn2');
 
-// Fondo chispas (canvas)
-const canvas = document.getElementById('bg-sparks');
+// Canvas de fondo (chispas)
+const canvas = must('bg-sparks');
 const ctx = canvas.getContext('2d');
 let sparks = [];
 function resizeCanvas(){ canvas.width = innerWidth; canvas.height = innerHeight; }
 addEventListener('resize', resizeCanvas);
 resizeCanvas();
 function createSpark(){
-  return {
-    x: Math.random()*canvas.width,
-    y: canvas.height + Math.random()*100,
-    vY: 0.6 + Math.random()*1.4,
-    vX: (Math.random()-0.5)*0.3,
-    r: 1 + Math.random()*2.2,
-    life: 60 + Math.random()*120,
-    hue: 25 + Math.random()*25 // naranja-amarillo
-  };
+  return { x: Math.random()*canvas.width, y: canvas.height + Math.random()*100, vY: 0.6 + Math.random()*1.4, vX: (Math.random()-0.5)*0.3, r: 1 + Math.random()*2.2, life: 60 + Math.random()*120, hue: 25 + Math.random()*25 };
 }
 for(let i=0;i<120;i++) sparks.push(createSpark());
 function drawSparks(){
@@ -84,76 +90,54 @@ function drawSparks(){
 }
 requestAnimationFrame(drawSparks);
 
-// Utilidades
-function shuffle(a){ const arr=[...a]; for(let i=arr.length-1;i>0;i--){ const j=Math.floor(Math.random()*(i+1)); [arr[i],arr[j]]=[arr[j],arr[i]];} return arr; }
-
-// --------- Ciclo de vida ----------
-function init(){
-  state.order = shuffle(QUESTIONS.map((_,i)=>i));
-  hideMenu();
-  showIntro();
-  attachLifelines();
-  bindIntroControls();
-}
-
-// Arranca juego tras la intro
-function startGame(){
-  state.idx = 0;
-  state.usedLifelines = { '50': false, 'call': false, 'aud': false };
-  renderLadder();
-  loadQuestionAt(0);
-  state.canRunTimer = true;
-  startTimer();
-}
-
-// --------- Escalera ----------
+// ==================== Escalera ====================
 function renderLadder(){
   ladderEl.innerHTML = '';
   for (let i = PRIZES.length - 1; i >= 0; i--) {
     const step = document.createElement('div');
-    step.className = 'step' + (i === state.idx ? ' current' : '') + (SAFE_LEVELS.has(i) ? ' safe' : '');
+    step.className = 'step' + (i === state.idx ? ' current' : '');
     const n = document.createElement('span'); n.textContent = String(i+1);
     const amount = document.createElement('span'); amount.className = 'amount'; amount.textContent = `$${PRIZES[i]}`;
     step.append(n, amount); ladderEl.appendChild(step);
   }
   updatePrizeDisplay();
 }
-function updatePrizeDisplay(){
-  const clamped = Math.max(0, Math.min(PRIZES.length-1, state.idx));
-  currentPrizeEl.textContent = `$${PRIZES[clamped]}`;
-  const reached = [...SAFE_LEVELS].filter(l => l <= clamped).sort((a,b)=>b-a)[0];
-  const safe = typeof reached === 'number' ? PRIZES[reached] : '0';
-  safeAmt.textContent = `$${safe}`;
-}
+function updatePrizeDisplay(){ currentPrizeEl.textContent = fmt(state.bank); }
 
-// --------- Temporizador ----------
-let timerInterval = null;
-const CIRC = 2 * Math.PI * 54; // r=54
-if (prog) prog.style.strokeDasharray = String(CIRC);
+// ==================== Temporizador ====================
+let timerInterval = null; const CIRC = 2 * Math.PI * 54; // r=54
+prog.style.strokeDasharray = String(CIRC);
 
 function startTimer(){
-  if (!state.canRunTimer) return; // no iniciar hasta después de la intro
+  if (!state.canRunTimer) return;
   clearInterval(timerInterval);
+  const start = Date.now();
   state.timer = state.timerMax;
   state.running = true;
   updateTimerUI();
   try { sSuspense.currentTime = 0; sSuspense.play().catch(()=>{}); } catch(_) {}
-  timerInterval = setInterval(()=>{
-    state.timer--;
-    if (state.timer <= 10) { try { sTick.currentTime = 0; sTick.play().catch(()=>{});} catch(_){} }
-    updateTimerUI();
-    if (state.timer <= 0){
+  const tick = () => {
+    const elapsed = Math.floor((Date.now() - start) / 1000);
+    const left = state.timerMax - elapsed;
+    if (left !== state.timer) {
+      state.timer = Math.max(0, left);
+      updateTimerUI();
+      if (state.timer <= 10) { try { sTick.currentTime = 0; sTick.play().catch(()=>{});} catch(_){} }
+    }
+    if (left <= 0){
       clearInterval(timerInterval);
       state.running = false;
       try { sSuspense.pause(); } catch(_) {}
       onTimeUp();
     }
-  }, 1000);
+  };
+  timerInterval = setInterval(tick, 200);
+  tick();
 }
 function stopTimer(){ clearInterval(timerInterval); try { sSuspense.pause(); } catch(_) {} }
 function updateTimerUI(){ timerNum.textContent = String(state.timer); const ratio = (state.timerMax - state.timer) / state.timerMax; prog.style.strokeDashoffset = String(ratio * CIRC); }
 
-// --------- Preguntas/Respuestas ----------
+// ==================== Preguntas/Respuestas ====================
 function loadQuestionAt(pos){
   state.idx = pos;
   renderLadder();
@@ -164,7 +148,10 @@ function loadQuestionAt(pos){
   q.a.forEach((txt,i)=>{
     const btn = document.createElement('button');
     btn.className = 'answer'; btn.type='button'; btn.dataset.index = String(i);
-    btn.innerHTML = `<span class="letter">${'ABCD'[i]}</span><span>${txt}</span>`;
+    // crear nodos en lugar de innerHTML
+    const letter = document.createElement('span'); letter.className='letter'; letter.textContent = 'ABCD'[i];
+    const label = document.createElement('span'); label.textContent = txt;
+    btn.append(letter, label);
     btn.addEventListener('click', ()=>selectAnswer(btn,i,q.correct));
     answersEl.appendChild(btn);
   });
@@ -180,6 +167,9 @@ function selectAnswer(el, chosen, correct){
   lockAnswers(); stopTimer();
   try { sSelect.currentTime = 0; sSelect.play().catch(()=>{});} catch(_) {}
   if (chosen === correct){
+    // sumar premio del nivel actual
+    const prizeVal = Number(PRIZES[state.idx].replace(/\./g,''));
+    state.bank += prizeVal;
     el.classList.add('correct');
     try { sCorrect.currentTime = 0; sCorrect.play().catch(()=>{});} catch(_) {}
     setTimeout(()=> nextQuestion(), 1200);
@@ -207,78 +197,62 @@ function onTimeUp(){
   setTimeout(()=> endGame(false), 1200);
 }
 
-// --------- Menú (fin de partida) ----------
+// ==================== Menú final ====================
 function endGame(win){
   stopTimer();
-  if (win){
-    triggerConfetti();
-    showMenu(`$${PRIZES[PRIZES.length-1]}`);
-  } else {
-    const clamped = Math.max(0, Math.min(PRIZES.length-1, state.idx));
-    showMenu(`$${PRIZES[clamped]}`);
-  }
+  showMenu(fmt(state.bank));
+  if (win) { triggerConfetti(); }
 }
-function showMenu(prize){
-  menuPrize.textContent = prize;
-  menu.classList.add('show');      // ← mostrar con clase .show
-}
-function hideMenu(){
-  menu.classList.remove('show');   // ← ocultar seguro
-}
-btnRetry.addEventListener('click', ()=>{
-  hideMenu();
-  state.order = shuffle(QUESTIONS.map((_,i)=>i));
-  startGame();
-});
+function showMenu(prize){ menuPrize.textContent = prize; menu.classList.add('show'); }
+function hideMenu(){ menu.classList.remove('show'); }
+btnRetry.addEventListener('click', ()=>{ hideMenu(); startGame(); });
 btnExit.addEventListener('click', ()=>{ location.reload(); });
 
-// --------- Comodines ----------
+// ==================== Comodines ====================
 function attachLifelines(){
-  const b5050 = document.getElementById('lf-5050');
-  const bCall = document.getElementById('lf-call');
-  const bAud  = document.getElementById('lf-aud');
-  if (b5050) b5050.onclick = ()=>{
-    if(state.usedLifelines['50']) return;
-    state.usedLifelines['50']=true; use5050(); b5050.classList.add('used');
-  };
-  if (bCall) bCall.onclick = ()=>{
-    if(state.usedLifelines['call']) return;
-    state.usedLifelines['call']=true; useCall(); bCall.classList.add('used');
-  };
-  if (bAud)  bAud.onclick = ()=>{
-    if(state.usedLifelines['aud']) return;
-    state.usedLifelines['aud']=true; useAudience(); bAud.classList.add('used');
-  };
+  const b5050 = must('lf-5050');
+  const bCall = must('lf-call');
+  const bAud = must('lf-aud');
+
+  b5050.onclick = ()=>{ if(state.usedLifelines['50']) return; state.usedLifelines['50']=true; withLock(()=>{ use5050(); b5050.classList.add('used'); }); };
+  bCall.onclick = ()=>{ if(state.usedLifelines['call']) return; state.usedLifelines['call']=true; withLock(()=>{ useCall(); bCall.classList.add('used'); }); };
+  bAud.onclick = ()=>{ if(state.usedLifelines['aud']) return; state.usedLifelines['aud']=true; withLock(()=>{ useAudience(); bAud.classList.add('used'); }); };
 }
+function withLock(fn, delay=300){ lockAnswers(); try { fn(); } finally { setTimeout(unlockAnswers, delay); } }
 function use5050(){
   const qIdx = state.order[state.idx % state.order.length]; const correct = QUESTIONS[qIdx].correct;
   const nodes = [...answersEl.querySelectorAll('.answer')];
   const wrongIdxs = nodes.map((_,i)=>i).filter(i=>i!==correct);
-  wrongIdxs.sort(()=>Math.random()-0.5).slice(0,2).forEach(i=>{
-    const n=nodes[i]; if(n){ n.disabled=true; n.style.opacity='0.45'; }
-  });
+  wrongIdxs.sort(()=>Math.random()-0.5).slice(0,2).forEach(i=>{ const n=nodes[i]; if(n){ n.disabled=true; n.style.opacity='0.45'; } });
 }
 function useCall(){
   const qIdx = state.order[state.idx % state.order.length]; const correct = QUESTIONS[qIdx].correct;
   const pick = Math.random() < 0.75 ? correct : Math.floor(Math.random()*4);
-  alert('Llamada: Creo que la respuesta es la ' + 'ABCD'[pick]);
+  const callOverlay = must('callOverlay');
+  const callAdvice  = must('callAdvice');
+  const btnCloseCall = must('btnCloseCall');
+  callAdvice.textContent = `Tu contacto sugiere: la ${'ABCD'[pick]}`;
+  callOverlay.classList.add('show');
+  btnCloseCall.onclick = () => callOverlay.classList.remove('show');
 }
 function useAudience(){
   try { sAudience.currentTime = 0; sAudience.play().catch(()=>{});} catch(_) {}
   const qIdx = state.order[state.idx % state.order.length]; const correct = QUESTIONS[qIdx].correct;
   const nodes = [...answersEl.querySelectorAll('.answer')];
   nodes.forEach((n,i)=>{
+    n.querySelectorAll('.aud-pct').forEach(e=>e.remove());
     const span=document.createElement('span');
+    span.className='aud-pct';
     span.textContent=(i===correct? Math.floor(50+Math.random()*30) : Math.floor(5+Math.random()*20)) + '%';
     span.style.marginLeft='8px'; span.style.opacity='0.9';
     n.appendChild(span);
   });
 }
 
-// --------- Intro ----------
+// ==================== Intro ====================
 function showIntro(){
-  introOverlay.classList.add('show');   // visible
-  state.canRunTimer = false;            // evita que arranque el timer
+  introOverlay.classList.add('show');
+  state.canRunTimer = false;
   try { introVideo.currentTime = 0; introVideo.play().catch(()=>{});} catch(_) {}
 }
 function closeIntro(){
@@ -288,17 +262,38 @@ function closeIntro(){
 }
 function bindIntroControls(){
   const tryPlay = ()=>{ try { introVideo.muted = false; introVideo.play().catch(()=>{});} catch(_){} };
-  if (soundBtn)  soundBtn.onclick  = tryPlay;   // botón fuera del overlay
-  if (soundBtn2) soundBtn2.onclick = tryPlay;   // botón dentro del overlay
-  const doSkip = ()=> closeIntro();
-  if (skipBtn)  skipBtn.onclick  = doSkip;
+  if (soundBtn2) soundBtn2.onclick = tryPlay; // solo dentro del overlay
+  const doSkip = ()=>{ try { introVideo.pause(); } catch(_){}; try { sSuspense.pause(); } catch(_){}; closeIntro(); };
   if (skipBtn2) skipBtn2.onclick = doSkip;
   introVideo.addEventListener('ended', ()=> closeIntro());
 }
 
-// --------- Confeti ----------
+// ==================== Anti-trampas ====================
+let cheatDetections = 0; const MAX_DETECTIONS = 1;
+function onSuspiciousActivity(){ cheatDetections++; if (cheatDetections > MAX_DETECTIONS) { endByCheat(); } else { showWarn(); } }
+function showWarn(){
+  stopTimer();
+  const warn = must('warnOverlay');
+  const btn = must('btnWarnOk');
+  warn.classList.add('show');
+  btn.onclick = ()=>{ warn.classList.remove('show'); startTimer(); };
+}
+function endByCheat(){ stopTimer(); showMenu(fmt(state.bank)); }
+// cambio de pestaña/ventana
+document.addEventListener('visibilitychange', ()=>{ if (document.hidden) onSuspiciousActivity(); });
+// pérdida de foco
+window.addEventListener('blur', ()=> onSuspiciousActivity());
+// señales básicas de DevTools
+document.addEventListener('keydown', (e)=>{
+  if (e.key === 'F12' || (e.ctrlKey && e.shiftKey && (e.key === 'I' || e.key === 'J' || e.key === 'C'))) {
+    e.preventDefault(); onSuspiciousActivity();
+  }
+});
+document.addEventListener('contextmenu', e=> e.preventDefault());
+
+// ==================== Confeti ====================
 function triggerConfetti(){
-  const wrap = document.getElementById('confetti');
+  const wrap = must('confetti');
   wrap.innerHTML = '';
   for (let i=0;i<60;i++){
     const el=document.createElement('div');
@@ -308,16 +303,28 @@ function triggerConfetti(){
     el.style.width='10px';
     el.style.height='16px';
     el.style.background=`hsl(${Math.random()*360} 80% 60%)`;
-    el.style.transform='rotate('+ (Math.random()*360)+'deg)';
+    el.style.transform='rotate('+(Math.random()*360)+'deg)';
     el.style.opacity='0.95';
     wrap.appendChild(el);
     el.animate(
-      [{transform:'translateY(0) rotate(0deg)'},
-       {transform:'translateY(110vh) rotate(720deg)'}],
+      [{transform:'translateY(0) rotate(0deg)'}, {transform:'translateY(110vh) rotate(720deg)'}],
       {duration: 2000+Math.random()*1200, easing:'cubic-bezier(.2,.6,.2,1)'}
     );
   }
 }
 
-// Arranque
+// ==================== Ciclo de vida ====================
+function startGame(){
+  state.order = shuffle(QUESTIONS.map((_,i)=>i));
+  state.idx = 0;
+  state.bank = 0; // reiniciar acumulado
+  state.usedLifelines = { '50': false, 'call': false, 'aud': false };
+  renderLadder();
+  loadQuestionAt(0);
+  state.canRunTimer = true;
+  startTimer();
+}
+function init(){ hideMenu(); showIntro(); attachLifelines(); bindIntroControls(); }
+function showMenu(prize){ menuPrize.textContent = prize; menu.classList.add('show'); }
+function hideMenu(){ menu.classList.remove('show'); }
 init();
