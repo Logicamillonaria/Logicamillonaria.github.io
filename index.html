@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang='es'>
+<head>
+<meta charset='UTF-8'>
+<meta name='viewport' content='width=device-width, initial-scale=1'>
+<title>Lógica millonaria</title>
+<link rel='stylesheet' href='index.css'>
+</head>
+<body>
+<canvas id='bg-sparks'></canvas>
+<div class='app'>
+  <aside class='ladder' id='ladder'></aside>
+  <main class='stage'>
+    <div class='topbar'>
+      <h1 class='brand'>Lógica millonaria</h1>
+      <div class='prize' id='currentPrize'>$0</div>
+    </div>
+    <section class='question-card'>
+      <div class='question-wrap'>
+        <h4 id='topicTitle' class='topic-title'>Tema actual</h4>
+        <h2 id='questionTitle'>Cargando pregunta...</h2>
+        <div class='timer-wrap'>
+          <svg class='timer-svg' viewBox='0 0 120 120'>
+            <circle class='timer-bg' cx='60' cy='60' r='54'/>
+            <circle class='timer-progress' id='timerProgress' cx='60' cy='60' r='54'/>
+          </svg>
+          <div class='timer-number' id='timerNumber'>120</div>
+        </div>
+        <div class='answers' id='answers'></div>
+        <div class='lifelines'>
+          <button class='lifeline' id='lf-5050'>50/50</button>
+          <button class='lifeline' id='lf-call'>📞 Llamada</button>
+          <button class='lifeline' id='lf-aud'>👥 Público</button>
+        </div>
+      </div>
+    </section>
+  </main>
+</div>
+<div id='introOverlay' class='intro-overlay'>Intro aquí</div>
+<div id='topicsOverlay' class='menu-overlay'>Menú temas</div>
+<div id='gameMenu' class='menu-overlay'>Menú final</div>
+<div id='callOverlay' class='menu-overlay'>Llamada</div>
+<div id='warnOverlay' class='menu-overlay'>Advertencia</div>
+<div id='confetti'></div>
+<audio id='sTick' src='assets/audio/tick.mp3'></audio>
+<audio id='sSusp' src='assets/audio/suspense.mp3'></audio>
+<audio id='sSelect' src='assets/audio/select.mp3'></audio>
+<audio id='sCorrect' src='assets/audio/correct.mp3'></audio>
+<audio id='sWrong' src='assets/audio/wrong.mp3'></audio>
+<audio id='sAudience' src='assets/audio/audience.mp3'></audio>
+<script src='index.js'></script>
+</body>
+</html>
